@@ -39,8 +39,8 @@ install_java() {
     rm -rf "${jdkDir}"
     mkdir -p "${jdkDir}"
     jdkUrl=$(_get_jdk_download_url "${javaVersion}")
-    curl --silent --location ${jdkUrl} --output ${jdkTarball}
-    tar pxzf ${jdkTarball} -C "${jdkDir}"
+    curl --silent --location $jdkUrl --output ${jdkTarball}
+    _unpack_jdk ${jdkTarball} ${jdkDir}
     rm ${jdkTarball}
     echo "${javaVersion}" > "${jdkDir}"/version
     if [ ! -f "${javaExe}" ]; then
@@ -92,6 +92,16 @@ _get_relative_jdk_home() {
   else
     echo ""
   fi
+}
+
+_unpack_jdk() {
+  local jdkTarball=$1
+  local jdkDir=$2
+  tar pvxzf ${jdkTarball} -C "${jdkDir}" --strip-components=1
+  rm ${jdkTarball}
+  rm -f ${jdkDir}/*.zip
+  rm -rf ${jdkDir}/db
+  rm -rf ${jdkDir}/man
 }
 
 _get_os_suffix() {
