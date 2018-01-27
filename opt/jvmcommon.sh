@@ -22,15 +22,24 @@ case $limit in
   ;;
 esac
 
-if echo "${JAVA_OPTS:-}" | grep -q "\-Xmx"; then
-  export JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS:-"-Dfile.encoding=UTF-8"}
-else
-  default_java_opts="${default_java_mem_opts} -Dfile.encoding=UTF-8"
-  export JAVA_OPTS="${default_java_opts} ${JAVA_OPTS:-}"
-  if echo "${DYNO}" | grep -vq '^run\..*$'; then
-    export JAVA_TOOL_OPTIONS="${default_java_opts} ${JAVA_TOOL_OPTIONS:-}"
-  fi
-  if echo "${DYNO}" | grep -q '^web\..*$'; then
-    echo "Setting JAVA_TOOL_OPTIONS defaults based on dyno size. Custom settings will override them."
+export HEROKU_DEFAULT_JAVA_MEMORY_OPTIONS="${HEROKU_DEFAULT_JAVA_MEMORY_OPTIONS:-$default_java_mem_opts}"
+
+if [ -z "$HEROKU_DISABLE_JAVA_TOOL_OPTIONS" ]; then
+  if echo "${JAVA_OPTS:-}" | grep -q "\-Xmx"; then
+    export JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS:-"-Dfile.encoding=UTF-8"}
+  else
+    if echo "${JAVA_TOOL_OPTIONS:-}" | grep -q "\-Xmx"; then
+      export JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS:-"-Dfile.encoding=UTF-8"}
+    else
+      default_java_opts="${default_java_mem_opts} -Dfile.encoding=UTF-8"
+      export JAVA_OPTS="${default_java_opts} ${JAVA_OPTS:-}"
+      if echo "${DYNO}" | grep -vq '^run\..*$'; then
+        export JAVA_TOOL_OPTIONS="${default_java_opts} ${JAVA_TOOL_OPTIONS:-}"
+      fi
+    fi
+
+    if echo "${DYNO}" | grep -q '^web\..*$'; then
+      echo "Setting JAVA_TOOL_OPTIONS defaults based on dyno size. Custom settings will override them."
+    fi
   fi
 fi
