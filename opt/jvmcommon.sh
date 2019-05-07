@@ -9,10 +9,10 @@ calculate_java_memory_opts() {
     echo "$opts -Xmx671m -XX:CICompilerCount=2"
     ;;
   16384) # perf-m, private-m: memory.limit_in_bytes=2684354560
-    echo "$opts -Xms512m -Xmx2g"
+    echo "$opts -Xmx2g"
     ;;
   32768) # perf-l, private-l: memory.limit_in_bytes=15032385536
-    echo "$opts -Xms1g -Xmx12g"
+    echo "$opts -Xmx12g"
     ;;
   *) # Free, Hobby, 1X: memory.limit_in_bytes=268435456?
     echo "$opts -Xmx256m -Xss512k -XX:CICompilerCount=2"
@@ -21,8 +21,13 @@ calculate_java_memory_opts() {
 }
 
 export JAVA_HOME="$HOME/.jdk"
-export LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server:$LD_LIBRARY_PATH"
 export PATH="$HOME/.heroku/bin:$JAVA_HOME/bin:$PATH"
+
+if [[ -d "$JAVA_HOME/jre/lib/amd64/server" ]]; then
+  export LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server:$LD_LIBRARY_PATH"
+elif [[ -d "$JAVA_HOME/lib/server" ]]; then
+  export LD_LIBRARY_PATH="$JAVA_HOME/lib/server:$LD_LIBRARY_PATH"
+fi
 
 if cat "$HOME/.jdk/release" | grep -q '^JAVA_VERSION="1[0-1]'; then
   default_java_mem_opts="$(calculate_java_memory_opts "-XX:+UseContainerSupport")"

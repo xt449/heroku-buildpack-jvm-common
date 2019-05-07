@@ -1,6 +1,30 @@
 # JVM Common Buildpack Changelog
 
-## master
+## v84
+
+* Update default JDK 7, 8, 11, and 12
+* Prevent pgconfig jar from installing in CI
+
+## v83
+
+* Disable postgres sslmode when running in CI
+
+## v82
+
+* Update heroku-java-metrics-agent to 3.11
+
+## v80
+
+* Changed default JDK 7 to 7u201
+* Changed default JDK 11 to 11.0.2
+* Changed default JDK 8 to 8u201
+* Remove Xms from default JAVA_TOOL_OPTIONS
+
+## 73
+
+* Update metrics agent to version 3.9
+
+## v72
 
 * Changed default JDK 11 to GA
 * Improved default JVM options in JAVA_OPTS and JAVA_TOOL_OPTIONS

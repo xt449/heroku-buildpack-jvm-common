@@ -38,6 +38,12 @@ testDetectJava_custom() {
   assertCapturedEquals "1.7"
 }
 
+testDetectJava_default() {
+  echo "maven.version=3.3.9" >> ${BUILD_DIR}/system.properties
+  capture detect_java_version ${BUILD_DIR}
+  assertCapturedEquals "1.8"
+}
+
 test_defaultJdkUrl() {
   capture _get_jdk_download_url "${DEFAULT_JDK_VERSION}"
   assertCapturedSuccess
@@ -56,6 +62,7 @@ test_installJavaWithoutDirectoryFails() {
 }
 
 test_installDefaultJava() {
+  unset CI
   unset JAVA_HOME # unsets environment -- shunit doesn't clean environment before each test
   capture install_java ${BUILD_DIR}
   assertCapturedSuccess
@@ -70,6 +77,15 @@ test_installDefaultJava() {
   assertEquals "${BUILD_DIR}/.jdk/bin/java" "$(which java)"
   assertTrue "A profile.d file should have been created." "[ -f ${BUILD_DIR}/.profile.d/jvmcommon.sh ]"
   assertTrue "A pgconfig.jar should exist in the JDK" "[ -f ${BUILD_DIR}/.jdk/jre/lib/ext/pgconfig.jar ]"
+}
+
+test_installJavaCI() {
+  export CI="true"
+  unset JAVA_HOME # unsets environment -- shunit doesn't clean environment before each test
+  capture install_java ${BUILD_DIR}
+  assertCapturedSuccess
+  assertTrue "A pgconfig.jar should exist in the JDK" "[ ! -f ${BUILD_DIR}/.jdk/jre/lib/ext/pgconfig.jar ]"
+  unset CI
 }
 
 test_installJavaWithVersion() {
@@ -197,4 +213,11 @@ test_fail_install_metrics_agent() {
   capture _install_metrics_agent ${BUILD_DIR} ${BUILD_DIR}
   assertContains "failed to install metrics agent!" "$(cat ${STD_OUT})"
   unset HEROKU_METRICS_JAR_URL
+}
+
+test_skip_version_cache() {
+  assertTrue "Fake dir should not exist." "[ ! -d fake_dir ]"
+  capture _cache_version "1.8" "fake_dir"
+  assertCapturedSuccess
+  assertTrue "Version should not be cached" "[ ! -f fake_dir/system.properties ]"
 }
