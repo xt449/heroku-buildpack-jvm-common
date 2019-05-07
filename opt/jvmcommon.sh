@@ -14,8 +14,8 @@ calculate_java_memory_opts() {
   32768) # perf-l, private-l: memory.limit_in_bytes=15032385536
     echo "$opts -Xms1g -Xmx12g"
     ;;
-  *) # Free, Hobby, 1X: memory.limit_in_bytes=536870912
-    echo "$opts -Xmx300m -Xss512k -XX:CICompilerCount=2"
+  *) # Free, Hobby, 1X: memory.limit_in_bytes=268435456?
+    echo "$opts -Xmx256m -Xss512k -XX:CICompilerCount=2"
     ;;
   esac
 }
